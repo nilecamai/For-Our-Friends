@@ -14,7 +14,6 @@ struct AddView: View {
     
     // vars for writing fileName
     @State private var fileName: String = ""
-    @State private var nameEditable = true
     
     // vars for recording
     @State var record = false
@@ -26,12 +25,12 @@ struct AddView: View {
     @State var alertItem: AlertItem?
     
     var body: some View {
-        VStack(spacing: 25) {
+        VStack(alignment: .center, spacing: 25) {
             Text("Record New Audio")
             //standard record button
             Button(action: {
                 do {
-                    if self.nameEditable { // prevents recording if no name given
+                    if self.fileName.isEmpty { // prevents recording if no name given
                         self.alertItem = AlertItem(title: Text("Error"), message: Text("Please submit a file name for this recording"))
                         return
                     } else if self.record { // stops recording if already recording
@@ -46,7 +45,11 @@ struct AddView: View {
                         // same file name...
                         // so were updating based on audio count...
                         
-                        let filName = getDocumentsDirectory().appendingPathComponent("myRcd(self.audios.count + 1).m4a")
+                        let url = getDocumentsDirectory().appendingPathComponent(self.fileName + ".m4a")
+                        
+                        // testing file name REMOVE THIS LATER
+                        print(url)
+                        return
                         
                         let settings = [
                             AVFormatIDKey : Int(kAudioFormatMPEG4AAC),
@@ -55,11 +58,9 @@ struct AddView: View {
                             AVEncoderAudioQualityKey : AVAudioQuality.high.rawValue
                         ]
                         
-                        //self.recorder = try AVAudioRecorder(url: filName, settings: settings)
+                        self.recorder = try AVAudioRecorder(url: url, settings: settings)
                         // TODO: write AVAudiorecorder line for custom filename
                         self.recorder.record()
-                        
-                        // write if statement for fileName validation, wrap toggle in it
                         self.record.toggle()
                     }
                 } catch {
@@ -84,19 +85,14 @@ struct AddView: View {
             HStack(alignment: .center) {
                 // idea: have a textfield and button combo together, and have a text and button combo together; button toggles "editing" filename and textfield is when active, text when submitted
                 // you know the rest haah ahh
-                TextField("File name", text: $fileName).disabled(!self.nameEditable)
+                TextField("File name", text: $fileName)
                     .frame(width: 150, height: 50)
                 Button(action: {
-                    self.nameEditable.toggle()
+                    print("Upload button was tapped")
                 }) {
-                    Text(fileNameButtonText())
+                    Text("Upload")
                 }
                 .frame(width: 150, height: 50)
-            }
-            Button(action: {
-                print("Upload button was tapped")
-            }) {
-                Text("Upload")
             }
         }.alert(item: $alertItem) { alertItem in
             guard let primaryButton = alertItem.primaryButton, let secondaryButton = alertItem.secondaryButton else {
@@ -137,14 +133,6 @@ struct AddView: View {
             print(error.localizedDescription)
         }
     }
-    
-    func fileNameButtonText() -> String {
-        if self.nameEditable {
-            return "Submit File Name"
-        }
-        return "Edit File Name"
-    }
-    
 }
 
 struct AlertItem: Identifiable {
