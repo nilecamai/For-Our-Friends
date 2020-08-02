@@ -1,5 +1,5 @@
 //
-//  AddView.swift
+//  RecordingView.swift
 //  For Our Friends
 //
 //  Created by Nile Camai on 7/30/20.
@@ -11,6 +11,8 @@ import AVFoundation
 import SwiftUI
 
 struct RecordingView: View {
+    
+    @ObservedObject var dataSource: DataSource
     
     @State var audioPlayer: AVAudioPlayer!
     
@@ -45,17 +47,11 @@ struct RecordingView: View {
                         // self.getAudios()
                         return
                     } else { // starts recording
-                        // PLEASE work omg
-                        
-//                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(self.fileName + ".caf")
-                        
                         let url = sharedContainerURL.appendingPathComponent(self.fileName + ".caf")
-                        
                         let settings = [AVEncoderAudioQualityKey: AVAudioQuality.min.rawValue,
                         AVEncoderBitRateKey: 16,
                         AVNumberOfChannelsKey: 2,
                         AVSampleRateKey: 44100.0] as [String : Any]
-                        
                         self.recorder = try AVAudioRecorder(url: url, settings: settings)
                         // TODO: write AVAudiorecorder line for custom filename
                         self.recorder.record()
@@ -98,13 +94,6 @@ struct RecordingView: View {
                 } else {
                     print("FILE PATH NOT AVAILABLE")
                 }
-//                do {
-//                    self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(self.fileName + ".m4a").absoluteString))
-//                    self.audioPlayer.play()
-//                } catch let error as NSError {
-//                    print("you should not be seeing this")
-//                    print("audioPlayer error: \(error.localizedDescription)")
-//                }
             }) {
                 HStack {
                     Text("Play")
@@ -182,17 +171,8 @@ struct RecordingView: View {
     }
 }
 
-struct AlertItem: Identifiable {
-    var id = UUID()
-    var title = Text("")
-    var message: Text?
-    var dismissButton: Alert.Button?
-    var primaryButton: Alert.Button?
-    var secondaryButton: Alert.Button?
-}
-
 struct RecordingView_Previews: PreviewProvider {
     static var previews: some View {
-        RecordingView()
+        RecordingView(dataSource: DataSource())
     }
 }
