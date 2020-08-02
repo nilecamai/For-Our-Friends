@@ -14,21 +14,50 @@ struct ContentView: View {
     
     @ObservedObject var dataSource = DataSource()
     @State var isModal: Bool = false
+    @State var showingActionSheet: Bool = false
+    @State var recordingModal: Bool = false
+    @State var uploadModal: Bool = false
+    
+    var actionSheet: ActionSheet {
+        ActionSheet(title: Text("Upload New Sound"), message: Text(""), buttons: [
+            .default(Text("from Recording")) {
+                self.recordingModal.toggle()
+            },
+            .default(Text("from File")) {
+                self.uploadModal.toggle()
+            },
+            .destructive(Text("Cancel"))
+        ])
+    }
 
     var body: some View {
-        
         NavigationView {
             List(dataSource.sounds, id: \.self) { sound in
-                NavigationLink(destination: DetailView(selectedSound: sound)) {Text(sound)}
-            }.navigationBarTitle(Text("For Our Friends"))
-            .navigationBarItems(trailing:
+                NavigationLink(destination: DetailView(selectedSound: sound).onDisappear() {
+                    // DEEPLY INEFFICIENT, BUT IT IS WHAT IT IS
+                    self.dataSource.updateData()
+                }) {Text(sound)}
+            }.navigationBarTitle(Text("For Our Friends")).navigationBarItems(trailing:
                 Button(action: {
-                    self.isModal = true
+                    self.showingActionSheet.toggle()
                 }) {
                     Image(systemName: "plus.circle.fill").imageScale(.large)
-                }.sheet(isPresented: $isModal, content: {
-                    AddView()
+                }.actionSheet(isPresented: $showingActionSheet, content: {self.actionSheet}).sheet(isPresented: $recordingModal, content: {
+                    RecordingView().onDisappear() {
+                        // DEEPLY INEFFICIENT, BUT IT IS WHAT IT IS
+                        self.dataSource.updateData()
+                    }
                 })
+//                Button(action: {
+//                    self.isModal = true
+//                }) {
+//                    Image(systemName: "plus.circle.fill").imageScale(.large)
+//                }.sheet(isPresented: $isModal, content: {
+//                    RecordingView().onDisappear() {
+//                        // DEEPLY INEFFICIENT, BUT IT IS WHAT IT IS
+//                        self.dataSource.updateData()
+//                    }
+//                })
             )
         }
     }
@@ -40,35 +69,3 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-func getDocumentsDirectory() -> URL {
-    return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-}
-
-func playAudioFromDocuments(selectedSound: String) {
-    var audioPlayer: AVAudioPlayer!
-    do {
-        if let fileURL = Bundle.main.path(forResource:  selectedSound, ofType: "") {
-            audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: fileURL))
-            audioPlayer?.play()
-        } else {
-            let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
-            let url = NSURL(fileURLWithPath: path)
-            if let pathComponent = url.appendingPathComponent(selectedSound) {
-                let filePath = pathComponent.path
-                let fileManager = FileManager.default
-                if fileManager.fileExists(atPath: filePath) {
-                    audioPlayer = try AVAudioPlayer(contentsOf:URL(fileURLWithPath: filePath))
-                    audioPlayer?.play()
-                    print("success")
-                } else {
-                    print("FILE NOT AVAILABLE")
-                    print(filePath)
-                }
-            } else {
-                print("FILE PATH NOT AVAILABLE")
-            }
-        }
-    } catch let error {
-        print("Can't play the audio file failed with an error \(error.localizedDescription)")
-    }
-}

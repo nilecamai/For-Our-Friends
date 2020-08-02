@@ -13,9 +13,11 @@
 		095B454E24D283AB0009EB4F /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 095B454C24D283AB0009EB4F /* MainInterface.storyboard */; };
 		095B455024D283AD0009EB4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 095B454F24D283AD0009EB4F /* Assets.xcassets */; };
 		095B455424D283AD0009EB4F /* For Our Friends Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 095B454524D283AB0009EB4F /* For Our Friends Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		095B455D24D37BC40009EB4F /* AddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095B455C24D37BC40009EB4F /* AddView.swift */; };
+		095B455D24D37BC40009EB4F /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095B455C24D37BC40009EB4F /* RecordingView.swift */; };
 		099AB8FB24D648FF006DDE70 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099AB8FA24D648FF006DDE70 /* DataSource.swift */; };
 		099AB8FC24D648FF006DDE70 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099AB8FA24D648FF006DDE70 /* DataSource.swift */; };
+		099AB8FE24D66BB6006DDE70 /* CustomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099AB8FD24D66BB6006DDE70 /* CustomScrollView.swift */; };
+		099AB90024D683B6006DDE70 /* UploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099AB8FF24D683B6006DDE70 /* UploadView.swift */; };
 		09D351CC24D0EF1B004582F6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D351CB24D0EF1B004582F6 /* AppDelegate.swift */; };
 		09D351CE24D0EF1B004582F6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D351CD24D0EF1B004582F6 /* SceneDelegate.swift */; };
 		09D351D024D0EF1B004582F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D351CF24D0EF1B004582F6 /* ContentView.swift */; };
@@ -62,8 +64,10 @@
 		095B455924D286B90009EB4F /* For Our Friends ExtensionDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "For Our Friends ExtensionDebug.entitlements"; sourceTree = "<group>"; };
 		095B455A24D287070009EB4F /* For Our Friends Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "For Our Friends Extension.entitlements"; sourceTree = "<group>"; };
 		095B455B24D287100009EB4F /* For Our Friends.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "For Our Friends.entitlements"; sourceTree = "<group>"; };
-		095B455C24D37BC40009EB4F /* AddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddView.swift; sourceTree = "<group>"; };
+		095B455C24D37BC40009EB4F /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
 		099AB8FA24D648FF006DDE70 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
+		099AB8FD24D66BB6006DDE70 /* CustomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomScrollView.swift; sourceTree = "<group>"; };
+		099AB8FF24D683B6006DDE70 /* UploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadView.swift; sourceTree = "<group>"; };
 		09D351C824D0EF1B004582F6 /* For Our Friends.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "For Our Friends.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09D351CB24D0EF1B004582F6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		09D351CD24D0EF1B004582F6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -145,8 +149,10 @@
 				09D351CB24D0EF1B004582F6 /* AppDelegate.swift */,
 				09D351CD24D0EF1B004582F6 /* SceneDelegate.swift */,
 				09D351CF24D0EF1B004582F6 /* ContentView.swift */,
+				099AB8FF24D683B6006DDE70 /* UploadView.swift */,
+				099AB8FD24D66BB6006DDE70 /* CustomScrollView.swift */,
 				0947EEE624D396F500758171 /* DetailView.swift */,
-				095B455C24D37BC40009EB4F /* AddView.swift */,
+				095B455C24D37BC40009EB4F /* RecordingView.swift */,
 				09D351D124D0EF1C004582F6 /* Assets.xcassets */,
 				09D351D624D0EF1C004582F6 /* LaunchScreen.storyboard */,
 				09D351D924D0EF1C004582F6 /* Info.plist */,
@@ -289,7 +295,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				099AB8FB24D648FF006DDE70 /* DataSource.swift in Sources */,
-				095B455D24D37BC40009EB4F /* AddView.swift in Sources */,
+				095B455D24D37BC40009EB4F /* RecordingView.swift in Sources */,
+				099AB8FE24D66BB6006DDE70 /* CustomScrollView.swift in Sources */,
+				099AB90024D683B6006DDE70 /* UploadView.swift in Sources */,
 				09D351CC24D0EF1B004582F6 /* AppDelegate.swift in Sources */,
 				09D351CE24D0EF1B004582F6 /* SceneDelegate.swift in Sources */,
 				0947EEE724D396F500758171 /* DetailView.swift in Sources */,

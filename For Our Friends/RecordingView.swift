@@ -9,9 +9,8 @@
 import Foundation
 import AVFoundation
 import SwiftUI
-import UIKit
 
-struct AddView: View {
+struct RecordingView: View {
     
     @State var audioPlayer: AVAudioPlayer!
     
@@ -192,8 +191,8 @@ struct AlertItem: Identifiable {
     var secondaryButton: Alert.Button?
 }
 
-struct AddView_Previews: PreviewProvider {
+struct RecordingView_Previews: PreviewProvider {
     static var previews: some View {
-        AddView()
+        RecordingView()
     }
 }
