@@ -10,35 +10,8 @@ import AVFoundation
 import Combine
 import SwiftUI
 
-class DataSource: ObservableObject {
-    let didChange = PassthroughSubject<Void, Never>()
-    @Published var sounds = [String]()
-    
-    init() {
-        let fm = FileManager.default
-        
-        if let path = Bundle.main.resourcePath, let items = try? fm.contentsOfDirectory(atPath: path) {
-            
-            // for reference purposes
-            for item in items {
-                if item.hasSuffix(".m4a") {
-                    sounds.append(item)
-                }
-            }
-        }
-        
-        didChange.send(())
-    }
-}
-
 struct ContentView: View {
-    @State private var recipes = 0
-    //let recipes = ["Recipe 1", "Recipe 2", "Recipe 3"]
-    lazy var defaults: Void = UserDefaults.standard.set(recipes, forKey: "recipes")
     
-    //let defaults = UserDefaults.init(suiteName: "group.forourfriends.messages")
-        //defaults?.set(recipes, forKey: "myRecipes")
-        //defaults?.synchronize()
     @ObservedObject var dataSource = DataSource()
     @State var isModal: Bool = false
 
@@ -51,9 +24,8 @@ struct ContentView: View {
             .navigationBarItems(trailing:
                 Button(action: {
                     self.isModal = true
-                    print("Plus button pressed...")
                 }) {
-                    Image(systemName: "plus").imageScale(.large)
+                    Image(systemName: "plus.circle.fill").imageScale(.large)
                 }.sheet(isPresented: $isModal, content: {
                     AddView()
                 })
@@ -70,4 +42,33 @@ struct ContentView_Previews: PreviewProvider {
 
 func getDocumentsDirectory() -> URL {
     return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+}
+
+func playAudioFromDocuments(selectedSound: String) {
+    var audioPlayer: AVAudioPlayer!
+    do {
+        if let fileURL = Bundle.main.path(forResource:  selectedSound, ofType: "") {
+            audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: fileURL))
+            audioPlayer?.play()
+        } else {
+            let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
+            let url = NSURL(fileURLWithPath: path)
+            if let pathComponent = url.appendingPathComponent(selectedSound) {
+                let filePath = pathComponent.path
+                let fileManager = FileManager.default
+                if fileManager.fileExists(atPath: filePath) {
+                    audioPlayer = try AVAudioPlayer(contentsOf:URL(fileURLWithPath: filePath))
+                    audioPlayer?.play()
+                    print("success")
+                } else {
+                    print("FILE NOT AVAILABLE")
+                    print(filePath)
+                }
+            } else {
+                print("FILE PATH NOT AVAILABLE")
+            }
+        }
+    } catch let error {
+        print("Can't play the audio file failed with an error \(error.localizedDescription)")
+    }
 }

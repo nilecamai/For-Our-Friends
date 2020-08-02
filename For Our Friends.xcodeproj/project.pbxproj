@@ -14,6 +14,8 @@
 		095B455024D283AD0009EB4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 095B454F24D283AD0009EB4F /* Assets.xcassets */; };
 		095B455424D283AD0009EB4F /* For Our Friends Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 095B454524D283AB0009EB4F /* For Our Friends Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		095B455D24D37BC40009EB4F /* AddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095B455C24D37BC40009EB4F /* AddView.swift */; };
+		099AB8FB24D648FF006DDE70 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099AB8FA24D648FF006DDE70 /* DataSource.swift */; };
+		099AB8FC24D648FF006DDE70 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099AB8FA24D648FF006DDE70 /* DataSource.swift */; };
 		09D351CC24D0EF1B004582F6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D351CB24D0EF1B004582F6 /* AppDelegate.swift */; };
 		09D351CE24D0EF1B004582F6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D351CD24D0EF1B004582F6 /* SceneDelegate.swift */; };
 		09D351D024D0EF1B004582F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D351CF24D0EF1B004582F6 /* ContentView.swift */; };
@@ -61,6 +63,7 @@
 		095B455A24D287070009EB4F /* For Our Friends Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "For Our Friends Extension.entitlements"; sourceTree = "<group>"; };
 		095B455B24D287100009EB4F /* For Our Friends.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "For Our Friends.entitlements"; sourceTree = "<group>"; };
 		095B455C24D37BC40009EB4F /* AddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddView.swift; sourceTree = "<group>"; };
+		099AB8FA24D648FF006DDE70 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		09D351C824D0EF1B004582F6 /* For Our Friends.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "For Our Friends.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09D351CB24D0EF1B004582F6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		09D351CD24D0EF1B004582F6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -117,6 +120,8 @@
 		09D351BF24D0EF1B004582F6 = {
 			isa = PBXGroup;
 			children = (
+				099AB8FA24D648FF006DDE70 /* DataSource.swift */,
+				09D351DF24D0FC7C004582F6 /* sounds */,
 				09D351CA24D0EF1B004582F6 /* For Our Friends */,
 				095B454924D283AB0009EB4F /* For Our Friends Extension */,
 				095B454624D283AB0009EB4F /* Frameworks */,
@@ -145,7 +150,6 @@
 				09D351D124D0EF1C004582F6 /* Assets.xcassets */,
 				09D351D624D0EF1C004582F6 /* LaunchScreen.storyboard */,
 				09D351D924D0EF1C004582F6 /* Info.plist */,
-				09D351DF24D0FC7C004582F6 /* sounds */,
 				09D351D324D0EF1C004582F6 /* Preview Content */,
 			);
 			path = "For Our Friends";
@@ -275,6 +279,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				099AB8FC24D648FF006DDE70 /* DataSource.swift in Sources */,
 				095B454B24D283AB0009EB4F /* MessagesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -283,6 +288,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				099AB8FB24D648FF006DDE70 /* DataSource.swift in Sources */,
 				095B455D24D37BC40009EB4F /* AddView.swift in Sources */,
 				09D351CC24D0EF1B004582F6 /* AppDelegate.swift in Sources */,
 				09D351CE24D0EF1B004582F6 /* SceneDelegate.swift in Sources */,
@@ -498,6 +504,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s $(ARCHS_STANDARD)";
 			};
 			name = Debug;
 		};
@@ -507,6 +514,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "For Our Friends/For Our Friends.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"For Our Friends/Preview Content\"";
 				DEVELOPMENT_TEAM = 62343JAPDG;
@@ -518,8 +526,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "noolnjuul.For-Our-Friends";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s $(ARCHS_STANDARD)";
+				"VALID_ARCHS[sdk=*]" = "$(ARCHS_STANDARD)";
 			};
 			name = Release;
 		};

@@ -25,12 +25,40 @@ struct DetailView: View {
                         self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: fileURL))
                         self.audioPlayer.play()
                     } else {
-                        print("No file with specified name exists")
+                        
+                        let path = sharedContainerURL.absoluteString
+                        let url = NSURL(fileURLWithPath: path)
+                        if let pathComponent = url.appendingPathComponent(self.selectedSound) {
+                            let filePath = pathComponent.path
+                            let fileManager = FileManager.default
+                            if fileManager.fileExists(atPath: filePath) {
+                                self.audioPlayer = try AVAudioPlayer(contentsOf:URL(fileURLWithPath: filePath))
+                                self.audioPlayer.play()
+                            } else {
+                                print("FILE NOT AVAILABLE")
+                            }
+                        } else {
+                            print("FILE PATH NOT AVAILABLE")
+                        }
+                        
+//                        let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
+//                        let url = NSURL(fileURLWithPath: path)
+//                        if let pathComponent = url.appendingPathComponent(self.selectedSound) {
+//                            let filePath = pathComponent.path
+//                            let fileManager = FileManager.default
+//                            if fileManager.fileExists(atPath: filePath) {
+//                                self.audioPlayer = try AVAudioPlayer(contentsOf:URL(fileURLWithPath: filePath))
+//                                self.audioPlayer.play()
+//                            } else {
+//                                print("FILE NOT AVAILABLE")
+//                            }
+//                        } else {
+//                            print("FILE PATH NOT AVAILABLE")
+//                        }
                     }
                 } catch let error {
                     print("Can't play the audio file failed with an error \(error.localizedDescription)")
                 }
-                print("Edit button was tapped")
             }) {
                 Image(systemName: "play")
             }.navigationBarTitle(selectedSound)

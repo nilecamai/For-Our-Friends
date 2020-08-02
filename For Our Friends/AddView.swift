@@ -9,8 +9,11 @@
 import Foundation
 import AVFoundation
 import SwiftUI
+import UIKit
 
 struct AddView: View {
+    
+    @State var audioPlayer: AVAudioPlayer!
     
     // vars for writing fileName
     @State private var fileName: String = ""
@@ -24,9 +27,11 @@ struct AddView: View {
     // alert
     @State var alertItem: AlertItem?
     
+    @Environment(\.colorScheme) var colorScheme
+    
     var body: some View {
-        VStack(alignment: .center, spacing: 25) {
-            Text("Record New Audio")
+        VStack(alignment: .center, spacing: 20) {
+            Text("Record New Audio").frame(alignment: .top)
             //standard record button
             Button(action: {
                 do {
@@ -41,22 +46,16 @@ struct AddView: View {
                         // self.getAudios()
                         return
                     } else { // starts recording
-                        //let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                        // same file name...
-                        // so were updating based on audio count...
+                        // PLEASE work omg
                         
-                        let url = getDocumentsDirectory().appendingPathComponent(self.fileName + ".m4a")
+//                        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(self.fileName + ".caf")
                         
-                        // testing file name REMOVE THIS LATER
-                        print(url)
-                        return
+                        let url = sharedContainerURL.appendingPathComponent(self.fileName + ".caf")
                         
-                        let settings = [
-                            AVFormatIDKey : Int(kAudioFormatMPEG4AAC),
-                            AVSampleRateKey : 12000,
-                            AVNumberOfChannelsKey : 1,
-                            AVEncoderAudioQualityKey : AVAudioQuality.high.rawValue
-                        ]
+                        let settings = [AVEncoderAudioQualityKey: AVAudioQuality.min.rawValue,
+                        AVEncoderBitRateKey: 16,
+                        AVNumberOfChannelsKey: 2,
+                        AVSampleRateKey: 44100.0] as [String : Any]
                         
                         self.recorder = try AVAudioRecorder(url: url, settings: settings)
                         // TODO: write AVAudiorecorder line for custom filename
@@ -77,16 +76,48 @@ struct AddView: View {
                         .frame(width :85, height: 85)
                     if self.record {
                         Circle()
-                            .stroke(Color.white, lineWidth: 6)
+                            .stroke(colorScheme == .light ? Color.black : Color.white, lineWidth: 6)
                             .frame(width :85, height: 85)
                     }
                 }
             }
-            HStack(alignment: .center) {
-                // idea: have a textfield and button combo together, and have a text and button combo together; button toggles "editing" filename and textfield is when active, text when submitted
-                // you know the rest haah ahh
+            
+            //THIS BUTTON DOESN'T DO ANYTHING YET
+            Button(action: {
+                let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
+                let url = NSURL(fileURLWithPath: path)
+                if let pathComponent = url.appendingPathComponent(self.fileName + ".caf") {
+                    let filePath = pathComponent.path
+                    let fileManager = FileManager.default
+                    if fileManager.fileExists(atPath: filePath) {
+                        print("FILE AVAILABLE")
+                        print(fileManager.contents(atPath: filePath))
+                    } else {
+                        print("FILE NOT AVAILABLE")
+                        print(filePath)
+                    }
+                } else {
+                    print("FILE PATH NOT AVAILABLE")
+                }
+//                do {
+//                    self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(self.fileName + ".m4a").absoluteString))
+//                    self.audioPlayer.play()
+//                } catch let error as NSError {
+//                    print("you should not be seeing this")
+//                    print("audioPlayer error: \(error.localizedDescription)")
+//                }
+            }) {
+                HStack {
+                    Text("Play")
+                    Image(systemName: "play.fill").imageScale(.large)
+                }
+            }.disabled(false)
+            Spacer().frame(height: 20)
+            VStack(){
                 TextField("File name", text: $fileName)
-                    .frame(width: 150, height: 50)
+                    .frame(width: 300)
+                    .multilineTextAlignment(.center)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 Button(action: {
                     print("Upload button was tapped")
                 }) {
@@ -94,27 +125,44 @@ struct AddView: View {
                 }
                 .frame(width: 150, height: 50)
             }
-        }.alert(item: $alertItem) { alertItem in
+        }
+        .frame(height: 400)
+        .alert(item: $alertItem) { alertItem in
             guard let primaryButton = alertItem.primaryButton, let secondaryButton = alertItem.secondaryButton else {
                 return Alert(title: alertItem.title, message: alertItem.message, dismissButton: alertItem.dismissButton)
             }
             return Alert(title: alertItem.title, message: alertItem.message, primaryButton: primaryButton, secondaryButton: secondaryButton)
         }
         .onAppear {
-        
+            let fileMgr = FileManager.default
+
+            let dirPaths = fileMgr.urls(for: .documentDirectory,
+                            in: .userDomainMask)
+
+            let soundFileURL = dirPaths[0].appendingPathComponent(self.fileName + ".caf")
+
+            let recordSettings = [
+                AVFormatIDKey : Int(kAudioFormatMPEG4AAC),
+                AVSampleRateKey : 12000,
+                AVNumberOfChannelsKey : 1,
+                AVEncoderAudioQualityKey : AVAudioQuality.high.rawValue
+            ]
+
             do {
                 self.session = AVAudioSession.sharedInstance()
-                try self.session.setCategory(.playAndRecord)
-                
-                self.session.requestRecordPermission{ (status) in
-                    if !status {
-                        self.alertItem = AlertItem(title: Text("Error"), message: Text("Please enable access to the microphone"))
-                    } else {
-                        self.getAudios()
-                    }
-                }
-            } catch {
-        
+                try self.session.setActive(true)
+                try self.session.setCategory(
+                        AVAudioSession.Category.playAndRecord)
+            } catch let error as NSError {
+                print("audioSession error: \(error.localizedDescription)")
+            }
+
+            do {
+                try self.recorder = AVAudioRecorder(url: soundFileURL,
+                    settings: recordSettings as [String : AnyObject])
+                self.recorder?.prepareToRecord()
+            } catch let error as NSError {
+                print("audioSession error: \(error.localizedDescription)")
             }
         }
     }
@@ -144,9 +192,8 @@ struct AlertItem: Identifiable {
     var secondaryButton: Alert.Button?
 }
 
-
 struct AddView_Previews: PreviewProvider {
     static var previews: some View {
-        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
+        AddView()
     }
 }
