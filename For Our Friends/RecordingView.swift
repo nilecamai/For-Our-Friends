@@ -18,6 +18,12 @@ struct RecordingView: View {
     
     // vars for writing fileName
     @State private var fileName: String = ""
+    @State private var recordingExists: Bool = false
+    
+    // vars for recording button
+    @State private var buttonSize: CGFloat = 88
+    @State private var buttonCR: CGFloat = 45
+    @State private var autoPlay: Bool = true
     
     // vars for recording
     @State var record = false
@@ -25,96 +31,81 @@ struct RecordingView: View {
     @State var recorder: AVAudioRecorder!
     @State var audios: [URL] = []
     
+    let url = NSURL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String).appendingPathComponent("temp" + audioFormat)!
+    
     // alert
     @State var alertItem: AlertItem?
     
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
-            Text("Record New Audio").frame(alignment: .top)
+        VStack(alignment: .center, spacing: 50) {
+            //Text("Record New Audio").frame(alignment: .top)
             //standard record button
             Button(action: {
-                do {
-                    if self.fileName.isEmpty { // prevents recording if no name given
-                        self.alertItem = AlertItem(title: Text("Error"), message: Text("Please submit a file name for this recording"))
-                        return
-                    } else if self.record { // stops recording if already recording
-                        self.recorder.stop()
-                        self.record.toggle()
-                        
-                        // updating data for every rcd... demonstration video
-                        // self.getAudios()
-                        return
-                    } else { // starts recording
-                        let url = sharedContainerURL.appendingPathComponent(self.fileName + ".caf")
-                        let settings = [AVEncoderAudioQualityKey: AVAudioQuality.min.rawValue,
-                        AVEncoderBitRateKey: 16,
-                        AVNumberOfChannelsKey: 2,
-                        AVSampleRateKey: 44100.0] as [String : Any]
-                        self.recorder = try AVAudioRecorder(url: url, settings: settings)
-                        // TODO: write AVAudiorecorder line for custom filename
-                        self.recorder.record()
-                        self.record.toggle()
+                self.buttonSize = self.buttonSize == 88 ? 40 : 88
+                self.buttonCR = self.buttonCR == 45 ? 9.6 : 45
+                if self.record { // stops recording if already recording
+                    self.recorder.stop()
+                    self.record.toggle()
+                    if !self.recordingExists {self.recordingExists.toggle()}
+                    if self.autoPlay {
+                        self.playTempAudio()
                     }
-                } catch {
-                    print(error.localizedDescription)
+                    return
+                } else { // starts recording
+                    self.recorder.record()
+                    self.record.toggle()
                 }
-                
             }) {
                 ZStack{
                     Circle()
+                        .stroke(colorScheme == .light ? Color.black : Color.white, lineWidth: 5)
+                        .frame(width: 100, height: 100)
+                    Rectangle()
                         .fill(Color.red)
-                        .frame(width: 70, height: 70)
-                    Circle()
-                        .opacity(0)
-                        .frame(width :85, height: 85)
-                    if self.record {
-                        Circle()
-                            .stroke(colorScheme == .light ? Color.black : Color.white, lineWidth: 6)
-                            .frame(width :85, height: 85)
-                    }
+                        .frame(width: self.buttonSize, height: self.buttonSize)
+                        .cornerRadius(self.buttonCR)
+                        .animation(.spring(response: 0.2, dampingFraction: 0.6))
                 }
+            }
+            .padding(20)
+            .contextMenu {
+                Button(action: {
+                    self.autoPlay.toggle()
+                }) {
+                    Text("Turn auto-play " + (self.autoPlay ? "off" : "on"))
+                    Image(systemName: (self.autoPlay ? "pause.rectangle" : "play.rectangle")).imageScale(.large)
+                }
+                Button(action: {
+                    
+                }) {
+                    Text("Save")
+                    Image(systemName: "folder.fill.badge.plus").imageScale(.large)
+                }.disabled(!self.recordingExists || self.record)
             }
             
-            //THIS BUTTON DOESN'T DO ANYTHING YET
-            Button(action: {
-                let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
-                let url = NSURL(fileURLWithPath: path)
-                if let pathComponent = url.appendingPathComponent(self.fileName + ".caf") {
-                    let filePath = pathComponent.path
-                    let fileManager = FileManager.default
-                    if fileManager.fileExists(atPath: filePath) {
-                        print("FILE AVAILABLE")
-                        print(fileManager.contents(atPath: filePath))
-                    } else {
-                        print("FILE NOT AVAILABLE")
-                        print(filePath)
-                    }
-                } else {
-                    print("FILE PATH NOT AVAILABLE")
-                }
-            }) {
-                HStack {
-                    Text("Play")
-                    Image(systemName: "play.fill").imageScale(.large)
-                }
-            }.disabled(false)
-            Spacer().frame(height: 20)
-            VStack(){
-                TextField("File name", text: $fileName)
-                    .frame(width: 300)
-                    .multilineTextAlignment(.center)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            VStack(spacing: 10) {
                 Button(action: {
-                    print("Upload button was tapped")
+                    self.playTempAudio()
                 }) {
-                    Text("Upload")
+                    HStack {
+                        Text("Preview")
+                        Image(systemName: "play.fill")
+                    }
                 }
-                .frame(width: 150, height: 50)
+                .disabled(!self.recordingExists || self.record)
+                .padding(10)
+                Button(action: {
+                    
+                }) {
+                    Text("Save")
+                    Image(systemName: "folder.fill.badge.plus")
+                }
+                .disabled(!self.recordingExists || self.record)
+                .padding(10)
             }
         }
-        .frame(height: 400)
         .alert(item: $alertItem) { alertItem in
             guard let primaryButton = alertItem.primaryButton, let secondaryButton = alertItem.secondaryButton else {
                 return Alert(title: alertItem.title, message: alertItem.message, dismissButton: alertItem.dismissButton)
@@ -122,53 +113,37 @@ struct RecordingView: View {
             return Alert(title: alertItem.title, message: alertItem.message, primaryButton: primaryButton, secondaryButton: secondaryButton)
         }
         .onAppear {
-            let fileMgr = FileManager.default
-
-            let dirPaths = fileMgr.urls(for: .documentDirectory,
-                            in: .userDomainMask)
-
-            let soundFileURL = dirPaths[0].appendingPathComponent(self.fileName + ".caf")
-
-            let recordSettings = [
-                AVFormatIDKey : Int(kAudioFormatMPEG4AAC),
-                AVSampleRateKey : 12000,
-                AVNumberOfChannelsKey : 1,
-                AVEncoderAudioQualityKey : AVAudioQuality.high.rawValue
-            ]
-
+            
             do {
+                // start session
                 self.session = AVAudioSession.sharedInstance()
                 try self.session.setActive(true)
                 try self.session.setCategory(
                         AVAudioSession.Category.playAndRecord)
-            } catch let error as NSError {
-                print("audioSession error: \(error.localizedDescription)")
-            }
-
-            do {
-                try self.recorder = AVAudioRecorder(url: soundFileURL,
-                    settings: recordSettings as [String : AnyObject])
+                // define recorder
+                let settings =
+                    [AVEncoderAudioQualityKey: AVAudioQuality.min.rawValue,
+                     AVEncoderBitRateKey: 16,
+                     AVNumberOfChannelsKey: 2,
+                     AVSampleRateKey: 44100.0] as [String : Any]
+                self.recorder = try AVAudioRecorder(url: self.url, settings: settings)
                 self.recorder?.prepareToRecord()
+                self.recordingExists = false
             } catch let error as NSError {
                 print("audioSession error: \(error.localizedDescription)")
             }
+        }
+    }
+
+    func playTempAudio() {
+        do {
+            self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: self.url.path))
+            self.audioPlayer.play()
+        } catch {
+            print("audioSession error: \(error.localizedDescription)")
         }
     }
     
-    func getAudios() {
-        do {
-            let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            // fetch all data from document directory...
-            let result = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .producesRelativePathURLs)
-            // updated means remove all old data..
-            self.audios.removeAll()
-            for i in result {
-                self.audios.append(i)
-            }
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
 }
 
 struct RecordingView_Previews: PreviewProvider {
