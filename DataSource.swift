@@ -12,9 +12,11 @@ import Combine
 let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.forourfriends.messages")!
 let sharedContainerPath = sharedContainerURL.path
 
+let audioFormat = ".caf"
+
 class DataSource: ObservableObject {
     let didChange = PassthroughSubject<Void, Never>()
-    @Published var sounds = [String]()
+    @Published var sounds = [Sound]()
     
     init() {
         
@@ -34,56 +36,33 @@ class DataSource: ObservableObject {
                 }
             }
         }
-        
-        updateData()
     }
     
+    // only call when something absolutely fatal happened to data and you must reset
     func updateData() {
         sounds.removeAll()
         
         let fm = FileManager.default
         
-        // add sounds from Bundle resources
-        // ^ EDIT: NO LONGER REFERENCES BUNDLE
-        /*
-        if let path = Bundle.main.resourcePath, let items = try? fm.contentsOfDirectory(atPath: path) {
-            for item in items {
-                if item.hasSuffix(".m4a") || item.hasSuffix(".caf") {
-                    sounds.append(item)
-                }
-            }
-        }
-         */
-        
-        // add user-created sounds
-        // ^ EDIT: adds ALL sounds
         do {
             let items = try fm.contentsOfDirectory(at: sharedContainerURL, includingPropertiesForKeys: nil)
             for urlItem in items {
-                let item = urlItem.lastPathComponent
-                if item.hasSuffix(".m4a") || item.hasSuffix(".caf") {
-                    sounds.append(item)
+                let fileName = urlItem.lastPathComponent
+                if fileName.hasSuffix(".m4a") || fileName.hasSuffix(".caf") {
+                    // does not know custom name given so it will appear as fileName
+                    let sound = Sound(fileName: fileName)
+                    sounds.append(sound)
                 }
             }
         } catch {
             
         }
-        
         didChange.send(())
     }
     
-    func addSound(soundFile: SoundFile) {
+    func addSound(sound: Sound) {
         // instead of doing the update data thing we will call a method to add the sound
-        
+        sounds.append(sound)
     }
     
-}
-
-struct SoundFile {
-    let name: String
-    let path: String
-    let userCreated: Bool
-    
-    // equivalent of toString()
-    public var description: String {return name}
 }
