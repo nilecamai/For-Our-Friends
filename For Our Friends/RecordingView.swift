@@ -16,6 +16,8 @@ struct RecordingView: View {
     
     @State var audioPlayer: AVAudioPlayer!
     
+    @State var saveModal: Bool = false
+    
     // vars for writing fileName
     @State private var fileName: String = ""
     @State private var recordingExists: Bool = false
@@ -23,7 +25,7 @@ struct RecordingView: View {
     // vars for recording button
     @State private var buttonSize: CGFloat = 88
     @State private var buttonCR: CGFloat = 45
-    @State private var autoPlay: Bool = true
+    @State private var autoPlay = UserDefaults.standard.bool(forKey: "autoPlay")
     
     // vars for recording
     @State var record = false
@@ -31,17 +33,17 @@ struct RecordingView: View {
     @State var recorder: AVAudioRecorder!
     @State var audios: [URL] = []
     
-    let url = NSURL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String).appendingPathComponent("temp" + audioFormat)!
-    
     // alert
     @State var alertItem: AlertItem?
     
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         VStack(alignment: .center, spacing: 50) {
             //Text("Record New Audio").frame(alignment: .top)
             //standard record button
+            
             Button(action: {
                 self.buttonSize = self.buttonSize == 88 ? 40 : 88
                 self.buttonCR = self.buttonCR == 45 ? 9.6 : 45
@@ -73,12 +75,13 @@ struct RecordingView: View {
             .contextMenu {
                 Button(action: {
                     self.autoPlay.toggle()
+                    UserDefaults.standard.set(self.autoPlay, forKey: "autoPlay")
                 }) {
                     Text("Turn auto-play " + (self.autoPlay ? "off" : "on"))
                     Image(systemName: (self.autoPlay ? "pause.rectangle" : "play.rectangle")).imageScale(.large)
                 }
                 Button(action: {
-                    
+                    self.showSaveView()
                 }) {
                     Text("Save")
                     Image(systemName: "folder.fill.badge.plus").imageScale(.large)
@@ -97,7 +100,7 @@ struct RecordingView: View {
                 .disabled(!self.recordingExists || self.record)
                 .padding(10)
                 Button(action: {
-                    
+                    self.showSaveView()
                 }) {
                     Text("Save")
                     Image(systemName: "folder.fill.badge.plus")
@@ -106,6 +109,11 @@ struct RecordingView: View {
                 .padding(10)
             }
         }
+        .sheet(isPresented: $saveModal, content: {
+            SaveView().onDisappear() {
+                self.presentationMode.wrappedValue.dismiss()
+            }
+        })
         .alert(item: $alertItem) { alertItem in
             guard let primaryButton = alertItem.primaryButton, let secondaryButton = alertItem.secondaryButton else {
                 return Alert(title: alertItem.title, message: alertItem.message, dismissButton: alertItem.dismissButton)
@@ -126,7 +134,7 @@ struct RecordingView: View {
                      AVEncoderBitRateKey: 16,
                      AVNumberOfChannelsKey: 2,
                      AVSampleRateKey: 44100.0] as [String : Any]
-                self.recorder = try AVAudioRecorder(url: self.url, settings: settings)
+                self.recorder = try AVAudioRecorder(url: tempDocURL, settings: settings)
                 self.recorder?.prepareToRecord()
                 self.recordingExists = false
             } catch let error as NSError {
@@ -137,11 +145,15 @@ struct RecordingView: View {
 
     func playTempAudio() {
         do {
-            self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: self.url.path))
+            self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: tempDocURL.path))
             self.audioPlayer.play()
         } catch {
             print("audioSession error: \(error.localizedDescription)")
         }
+    }
+    
+    func showSaveView() {
+        self.saveModal.toggle()
     }
     
 }

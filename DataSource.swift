@@ -12,6 +12,9 @@ import Combine
 let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.forourfriends.messages")!
 let sharedContainerPath = sharedContainerURL.path
 
+
+let tempDocURL = NSURL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String).appendingPathComponent("temp" + audioFormat)!
+
 let audioFormat = ".caf"
 
 class DataSource: ObservableObject {

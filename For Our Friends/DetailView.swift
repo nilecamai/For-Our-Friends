@@ -33,6 +33,7 @@ struct DetailView: View {
                 Image(systemName: "play")
             }.navigationBarTitle(sound.description)
             Text(sound.description) // TODO: change to TextField
+            Text(sound.id.uuidString)
         }
     }
 }
